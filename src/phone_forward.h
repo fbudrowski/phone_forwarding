@@ -72,7 +72,8 @@ void phfwdRemove(struct PhoneForward *pf, char const *num);
  * @p PhoneNumbers,która musi być zwolniona za pomocą funkcji @ref phnumDelete.
  * @param[in] pf  – wskaźnik na strukturę przechowującą przekierowania numerów;
  * @param[in] num – wskaźnik na napis reprezentujący numer.
- * @return Wskaźnik na strukturę przechowującą ciąg numerów.
+ * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy nie
+ *         udało się zaalokować pamięci.
  */
 struct PhoneNumbers const * phfwdGet(struct PhoneForward *pf, char const *num);
 
@@ -84,7 +85,8 @@ struct PhoneNumbers const * phfwdGet(struct PhoneForward *pf, char const *num);
  * funkcji @ref phnumDelete.
  * @param[in] pf  – wskaźnik na strukturę przechowującą przekierowania numerów;
  * @param[in] num – wskaźnik na napis reprezentujący numer.
- * @return Wskaźnik na strukturę przechowującą ciąg numerów.
+ * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy nie
+ *         udało się zaalokować pamięci.
  */
 struct PhoneNumbers const * phfwdReverse(struct PhoneForward *pf, char const *num);
 
@@ -102,7 +104,8 @@ static inline void phnumDelete(struct PhoneNumbers const *pnum) {
  * kolejno od zera.
  * @param[in] pnum – wskaźnik na strukturę przechowującą ciąg napisów;
  * @param[in] idx  – indeks napisu.
- * @return Wskaźnik na napis. Wartość NULL, jeśli indeks ma za dużą wartość.
+ * @return Wskaźnik na napis. Wartość NULL, jeśli wskaźnik @p pnum ma wartość
+ *         NULL lub indeks ma za dużą wartość.
  */
 char const * phnumGet(struct PhoneNumbers const *pnum, size_t idx);
 
