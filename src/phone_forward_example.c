@@ -106,11 +106,45 @@ int main() {
   assert(phnumGet(pnum, 0) == NULL);
   phnumDelete(pnum);
 
+  phfwdAdd(pf, "12", "123");
+  pnum = phfwdGet(pf, "123");
+  printf("%s\n", phnumGet(pnum, 0)); // Wypisuje 1233.
+  phnumDelete(pnum);
+
+  phfwdAdd(pf, "2", "4");
+  phfwdAdd(pf, "23", "4");
+  pnum = phfwdReverse(pf, "434");
+  idx = 0;
+  // Wypisuje:
+  // 2334
+  // 234
+  // 434
+  while ((num = phnumGet(pnum, idx++)) != NULL)
+    printf("%s\n", num);
+  phnumDelete(pnum);
+
   phfwdDelete(pf);
 
   pnum = NULL;
   phnumDelete(pnum);
   pf = NULL;
+  phfwdDelete(pf);
+
+  pf = phfwdNew();
+  phfwdAdd(pf, "1234", "76");
+  pnum = phfwdGet(pf, "1234581");
+  printf("%s\n", phnumGet(pnum, 0)); // Wypisuje 76581.
+  phnumDelete(pnum);
+  pnum = phfwdGet(pf, "7581");
+  printf("%s\n", phnumGet(pnum, 0)); // Wypisuje 7581.
+  phnumDelete(pnum);
+  pnum = phfwdReverse(pf, "7581");
+  idx = 0;
+  // Wypisuje:
+  // 7581
+  while ((num = phnumGet(pnum, idx++)) != NULL)
+    printf("%s\n", num);
+  phnumDelete(pnum);
   phfwdDelete(pf);
 
   return 0;
