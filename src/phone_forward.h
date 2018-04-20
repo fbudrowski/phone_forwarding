@@ -69,7 +69,7 @@ void phfwdRemove(struct PhoneForward *pf, char const *num);
  * prefiksu. Wynikiem jest co najwyżej jeden numer. Jeśli dany numer nie został
  * przekierowany, to wynikiem jest ten numer. Jeśli podany napis nie
  * reprezentuje numeru, wynikiem jest pusty ciąg. Alokuje strukturę
- * @p PhoneNumbers,która musi być zwolniona za pomocą funkcji @ref phnumDelete.
+ * @p PhoneNumbers, która musi być zwolniona za pomocą funkcji @ref phnumDelete.
  * @param[in] pf  – wskaźnik na strukturę przechowującą przekierowania numerów;
  * @param[in] num – wskaźnik na napis reprezentujący numer.
  * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy nie
