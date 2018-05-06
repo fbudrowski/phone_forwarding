@@ -47,6 +47,8 @@ int main() {
   printf("%s\n", phnumGet(pnum, 0)); // Wypisuje 997.
   phnumDelete(pnum);
 
+
+
   pnum = phfwdReverse(pf, "987654321");
   idx = 0;
   // Wypisuje:

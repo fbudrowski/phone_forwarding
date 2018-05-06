@@ -95,9 +95,7 @@ struct PhoneNumbers const * phfwdReverse(struct PhoneForward *pf, char const *nu
  * wartość NULL.
  * @param[in] pnum – wskaźnik na usuwaną strukturę.
  */
-static inline void phnumDelete(struct PhoneNumbers const *pnum) {
-  free((void*)pnum);
-}
+void phnumDelete(struct PhoneNumbers *pnum);
 
 /** @brief Udostępnia numer.
  * Udostępnia wskaźnik na napis reprezentujący numer. Napisy są indeksowane
