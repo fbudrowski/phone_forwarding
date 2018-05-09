@@ -10,19 +10,29 @@
 
 const size_t DIGIT_COUNT = 10;
 
+
+/**
+ * Struktura przechowująca przekierowania numerów telefonów.
+ */
 typedef struct PhoneForward {
 
-    char digit;
+    char digit; /** Cyfra w obecnym wierzchołku */
 
-    struct PhoneForward * parent;
-    struct PhoneForward ** forwards;
+    struct PhoneForward * parent; /** Ojciec wierzchołka */
+    struct PhoneForward ** forwards; /** Tablica synów */
 
-    struct PhoneForward * redirTarget;
-    ArrayListNode * redirNode;
-    ArrayList* reverseRedirs;
+    struct PhoneForward * redirTarget; /** Wskaźnik na przekierowanie numeru */
+    ArrayListNode * redirNode; /** Wskaźnik na wierzchołek przekierowania */
+    ArrayList* reverseRedirs; /** Lista wierzchołków, które przekierowują na obecny */
 
 
 } PhoneForward;
+
+/**
+ * Sprawdza, czy ciąg znaków składa się z cyfr
+ * @param number - ciąg znaków,
+ * @return true jeżeli number składa się tylko z cyfr, false w przeciwnym wypadku.
+ */
 
 bool verifyNumber(char const * number){
   if (number == NULL) {
@@ -79,45 +89,6 @@ size_t charToDig(char const c){
   return (size_t)(c - '0');
 }
 
-PhoneForward* getVertexFromPrefixPassively (PhoneForward *pf, char const *prefix){
-
-  if (prefix == NULL || *prefix == '\0'){
-    return pf;
-  }
-  if (*prefix < '0' || '9' < *prefix){
-    return NULL;
-  }
-  if (pf == NULL || pf->forwards == NULL || pf->forwards[charToDig(*prefix)] == NULL) {
-    return pf;
-  }
-
-  return getVertexFromPrefixPassively(pf->forwards[charToDig(*prefix)], prefix + 1);
-}
-
-PhoneForward* getVertexFromPrefixAggressively(PhoneForward *pf, char const *prefix){
-  if (prefix == NULL || *prefix == '\0') {
-    return pf;
-  }
-  if (*prefix < '0' || '9' < *prefix){
-    return NULL;
-  }
-  if (pf->forwards == NULL){
-    pf->forwards = calloc(DIGIT_COUNT, sizeof(PhoneForward*));
-    if (pf->forwards == NULL){
-      return NULL;
-    }
-  }
-  if (pf->forwards[charToDig(*prefix)] == NULL) {
-    PhoneForward *newForward = phfwdNew();
-    if (newForward == NULL){
-      return NULL;
-    }
-    newForward->parent = pf;
-    newForward->digit = *prefix;
-    pf->forwards[charToDig(*prefix)] = newForward;
-  }
-  return getVertexFromPrefixAggressively(pf->forwards[charToDig(*prefix)], prefix + 1);
-}
 
 /**
  * Oblicza liczbę synów wierzchołka prefiksowego.
@@ -155,6 +126,8 @@ void cleanNonRecursive(PhoneForward *pf){
   }
 
 }
+
+
 /**
  * Próbuje usunąć nieużywany wierzchołek prefixowy i jego potencjalnie nieużywanych przodków
  * @param pf - najniższy wierzchołek do usunięcia
@@ -177,8 +150,65 @@ void cleanDownToUpRecursive(PhoneForward *pf){
 }
 
 /**
- * Usuwa przekierowanie
- * @param source - źródło usuwanego przekierowania
+ * Zwraca najdalszy istniejący wierzchołek na ścieżce od korzenia do wierzchołka odpowiadającego numerowi prefix.
+ * Nie tworzy nowych wierzchołków.
+ * @param pf - wierzchołek początkowy (korzeń)
+ * @param prefix - ciąg początkowy
+ * @return Najdalszy wierzchołek na ścieżce do prefix. Jeżeli ciąg nie składa się tylko z cyfr, UB.
+ */
+PhoneForward* getVertexFromPrefixPassively (PhoneForward *pf, char const *prefix){
+
+  if (prefix == NULL || *prefix == '\0'){
+    return pf;
+  }
+  if (*prefix < '0' || '9' < *prefix){
+    return NULL;
+  }
+  if (pf == NULL || pf->forwards == NULL || pf->forwards[charToDig(*prefix)] == NULL) {
+    return pf;
+  }
+
+  return getVertexFromPrefixPassively(pf->forwards[charToDig(*prefix)], prefix + 1);
+}
+
+/**
+ *
+ * Zwraca wierzchołek odpowiadający numerowi prefix. W tym celu może tworzyć nowe wierzchołki. Przy błędzie alokacji, nie pozostawia dodatkowych
+ * wierzchołków.
+ * @param pf - wierzchołek początkowy
+ * @param prefix - ciąg początkowy
+ * @return Wierzchołek na ścieżce do prefix. NULL jeżeli wystąpił błąd alokacji.
+ */
+PhoneForward* getVertexFromPrefixAggressively(PhoneForward *pf, char const *prefix){
+  if (prefix == NULL || *prefix == '\0') {
+    return pf;
+  }
+  if (*prefix < '0' || '9' < *prefix){
+    return NULL;
+  }
+  if (pf->forwards == NULL){
+    pf->forwards = calloc(DIGIT_COUNT, sizeof(PhoneForward*));
+    if (pf->forwards == NULL){
+      cleanDownToUpRecursive(pf);
+      return NULL;
+    }
+  }
+  if (pf->forwards[charToDig(*prefix)] == NULL) {
+    PhoneForward *newForward = phfwdNew();
+    if (newForward == NULL){
+      cleanDownToUpRecursive(pf);
+      return NULL;
+    }
+    newForward->parent = pf;
+    newForward->digit = *prefix;
+    pf->forwards[charToDig(*prefix)] = newForward;
+  }
+  return getVertexFromPrefixAggressively(pf->forwards[charToDig(*prefix)], prefix + 1);
+}
+
+/**
+ * Usuwa przekierowanie.
+ * @param source - źródło usuwanego przekierowania, nie jest NULLem
  */
 void removeTarget(PhoneForward *source){
   PhoneForward* target = source->redirTarget;
@@ -218,6 +248,10 @@ bool phfwdAdd(PhoneForward* pf, char const * oldPrefix, char const * newPrefix){
 
   ArrayListNode* transferNode = malloc(sizeof(ArrayListNode));
 
+  if (transferNode == NULL){
+    return false;
+  }
+
   transferNode->valueToBeFreed = false;
   transferNode->pos = 0;
   transferNode->value = source;
@@ -250,6 +284,11 @@ void removeRedirsRecursive(PhoneForward* pf) {
   }
 }
 
+/**
+ * Zwraca odległość wierzchołka pf od korzenia.
+ * @param pf - wierzchołek, którego odległość sprawdzamy
+ * @return odległość pf od korzenia
+ */
 size_t getDistance(PhoneForward* pf){
   if (pf == NULL || pf->digit == 0){
     return 0;
@@ -284,7 +323,12 @@ void phfwdRemove(PhoneForward* pf, char const * num){
   cleanDownToUpRecursive(pf0);
 }
 
-
+/**
+ * Zwraca numer, na który przekierowany zostaje num.
+ * @param pf - korzeń struktury
+ * @param num - ciąg cyfr, wybrany numer
+ * @return przekierowanie z num
+ */
 char * getRedirection(PhoneForward *pf, char const *num){
 
   PhoneForward * source = getVertexFromPrefixPassively(pf, num);
@@ -353,7 +397,7 @@ struct PhoneNumbers const * phfwdReverse(struct PhoneForward * pf, char const *n
 
   while (target != NULL){
     if (target->reverseRedirs != NULL) {
-      for (int i = 0; i < target->reverseRedirs->phNumCount; i++){
+      for (size_t i = 0; i < target->reverseRedirs->phNumCount; i++){
         PhoneForward * source = (PhoneForward *) target->reverseRedirs->phNums[i]->value;
         size_t sourceLen = getDistance(source);
 

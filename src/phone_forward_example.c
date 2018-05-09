@@ -23,11 +23,11 @@ int main() {
 
   pnum = phfwdGet(pf, "1234");
   printf("%s\n", phnumGet(pnum, 0)); // Wypisuje 94.
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
   pnum = phfwdGet(pf, "12");
   printf("%s\n", phnumGet(pnum, 0)); // Wypisuje 12.
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
   strcpy(num1, "123456");
   strcpy(num2, "777777");
@@ -37,15 +37,15 @@ int main() {
 
   pnum = phfwdGet(pf, "12345");
   printf("%s\n", phnumGet(pnum, 0)); // Wypisuje 945.
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
   pnum = phfwdGet(pf, "123456");
   printf("%s\n", phnumGet(pnum, 0)); // Wypisuje 777777.
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
   pnum = phfwdGet(pf, "997");
   printf("%s\n", phnumGet(pnum, 0)); // Wypisuje 997.
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
 
 
@@ -56,13 +56,13 @@ int main() {
   // 987654321
   while ((num = phnumGet(pnum, idx++)) != NULL)
     printf("%s\n", num);
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
   phfwdRemove(pf, "12");
 
   pnum = phfwdGet(pf, "123456");
   printf("%s\n", phnumGet(pnum, 0)); // Wypisuje 123456.
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
   pnum = phfwdReverse(pf, "987654321");
   idx = 0;
@@ -70,7 +70,7 @@ int main() {
   // 987654321
   while ((num = phnumGet(pnum, idx++)) != NULL)
     printf("%s\n", num);
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
   result = phfwdAdd(pf, "567", "0");
   assert(result);
@@ -87,7 +87,7 @@ int main() {
   // 5678
   while ((num = phnumGet(pnum, idx++)) != NULL)
     printf("%s\n", num);
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
   result = phfwdAdd(pf, "A", "1");
   assert(!result);
@@ -102,16 +102,16 @@ int main() {
 
   pnum = phfwdGet(pf, "A");
   assert(phnumGet(pnum, 0) == NULL);
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
   pnum = phfwdReverse(pf, "A");
   assert(phnumGet(pnum, 0) == NULL);
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
 
   phfwdDelete(pf);
 
   pnum = NULL;
-  phnumDelete(pnum);
+  phnumDelete((struct PhoneNumbers *)pnum);
   pf = NULL;
   phfwdDelete(pf);
 

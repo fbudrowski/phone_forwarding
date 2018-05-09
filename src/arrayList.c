@@ -74,12 +74,24 @@ bool arrayListAdd (ArrayList* al, ArrayListNode* node){
 
 ArrayListNode* newArrayListNode(char * text){
   ArrayListNode* node = malloc(sizeof(ArrayListNode));
+  if (node == NULL){
+    return NULL;
+  }
   node->value = malloc(sizeof(char) * (strlen(text) + 1));
+  if (node->value == NULL){
+    free(node);
+    return NULL;
+  }
   node->valueToBeFreed = true;
   memcpy(node->value, text, sizeof(char) * (strlen(text) + 1));
   node->pos = 0;
   return node;
 }
+
+/**
+ * Eliminuje dany node z pamięci.
+ * @param aln - node do usunięcia.
+ */
 
 void arrayListNodeDelete(ArrayListNode * aln){
   if (aln != NULL){
@@ -125,7 +137,14 @@ bool isArrayListEmpty (ArrayList * al){
   return (al == NULL || al->phNumCount == 0);
 }
 
-int stringCompare(const void* n1, const void* n2){
+/**
+ * Porównuje leksykograficznie dwa ArrayListNode'y zawierające stringi (char*) odpowiednio do funkcji qsort.
+ * @param n1 Jeden string
+ * @param n2 Drugi string
+ * @return Pasująca do qsorta wartość porównania.
+ */
+
+int stringArrayListNodeCompare(const void *n1, const void *n2){
   bool n1Null = (n1 == NULL || (*((ArrayListNode**)n1))->value == NULL);
   bool n2Null = (n2 == NULL || (*((ArrayListNode**)n2))->value == NULL);
   char* str1 = (char*)(*((ArrayListNode**)n1))->value;
@@ -144,7 +163,10 @@ int stringCompare(const void* n1, const void* n2){
 }
 
 void stringArrayListSort (ArrayList * al){
-  qsort(al->phNums, al->phNumCount, sizeof(ArrayListNode *), stringCompare);
+  if (al == NULL || al->phNums == NULL){
+    return;
+  }
+  qsort(al->phNums, al->phNumCount, sizeof(ArrayListNode *), stringArrayListNodeCompare);
   for(size_t i = 0; i < al->phNumCount; i++){
     al->phNums[i]->pos = i;
     //printf("%zu %s\n", al->phNums[i]->pos, (char*)al->phNums[i]->value);
