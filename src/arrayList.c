@@ -72,7 +72,7 @@ bool arrayListAdd (ArrayList* al, ArrayListNode* node){
   return true;
 }
 
-ArrayListNode* newArrayListNode(char * text){
+ArrayListNode* newArrayListNode(char const * text){
   ArrayListNode* node = malloc(sizeof(ArrayListNode));
   if (node == NULL){
     return NULL;
@@ -149,7 +149,7 @@ int stringArrayListNodeCompare(const void *n1, const void *n2){
   bool n2Null = (n2 == NULL || (*((ArrayListNode**)n2))->value == NULL);
   char* str1 = (char*)(*((ArrayListNode**)n1))->value;
   char* str2 = (char*)(*((ArrayListNode**)n2))->value;
-  //printf("Compare %s with %s (%d %d)\n", str1, str2, n1Null?1:0, n2Null?1:0);
+  //printf("Compare %s with %s (%d %d) %d\n", str1, str2, n1Null?1:0, n2Null?1:0, (n1Null || n2Null) ? 0 : strcmp(str1, str2));
   if (n1Null && n2Null){
     return 0;
   }
@@ -169,7 +169,7 @@ void stringArrayListSort (ArrayList * al){
   qsort(al->phNums, al->phNumCount, sizeof(ArrayListNode *), stringArrayListNodeCompare);
   for(size_t i = 0; i < al->phNumCount; i++){
     al->phNums[i]->pos = i;
-    //printf("%zu %s\n", al->phNums[i]->pos, (char*)al->phNums[i]->value);
+    //printf("SORT %zu %s\n", al->phNums[i]->pos, (char*)al->phNums[i]->value);
   }
 
 }

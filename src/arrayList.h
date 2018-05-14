@@ -26,9 +26,12 @@
  */
 
 typedef struct ArrayListNode {
-    size_t pos; /** Pozycja w tablicy. Jeżeli element nie jest w tablicy -- undefined. */
-    bool valueToBeFreed; /** Czy element pod *value trzeba uwalniać przy delete */
-    void *value; /** Element, na który wskazuje node */
+    /** Pozycja w tablicy. Jeżeli element nie jest w tablicy -- undefined. */
+    size_t pos;
+    /** Stwierdza, czy element pod *value trzeba uwalniać (za pomocą free) przy delete */
+    bool valueToBeFreed;
+    /** Element, na który wskazuje node */
+    void *value;
 } ArrayListNode;
 
 /**
@@ -37,12 +40,16 @@ typedef struct ArrayListNode {
 
 typedef struct PhoneNumbers {
 
-    size_t arrSize; /** Obecna wielkość tablicy */
-    size_t phNumCount; /** Liczba elementów w tablicy */
-    ArrayListNode ** phNums; /** Tablica */
+    /** Obecna wielkość tablicy */
+    size_t arrSize;
+    /** Liczba elementów w tablicy */
+    size_t phNumCount;
+    /** Tablica */
+    ArrayListNode ** phNums;
 
 } PhoneNumbers;
 
+/** Właściwa nazwa dla PhoneNumbers - obie używamy zamiennie. */
 typedef PhoneNumbers ArrayList;
 
 /**
@@ -52,14 +59,15 @@ typedef PhoneNumbers ArrayList;
 ArrayList* newArrayList (void);
 
 /**
- * Tworzy nowy element tablicy ArrayList. Jeżeli alokacja pamięci się nie powiedzie, zwraca NULL.
- * @param Tekst jako char*.
+ * Tworzy nowy element tablicy ArrayList. Kopiuje stringa @p text do nowego elementu tablicowego.
+ * Jeżeli alokacja pamięci się nie powiedzie, zwraca NULL.
+ * @param text - Tekst jako char*.
  * @return Nowy element do ArrayList, zawierający kopię tekstu text lub NULL.
  */
-ArrayListNode* newArrayListNode(char * text);
+ArrayListNode* newArrayListNode(char const * text);
 
 /**
- * Zwraca idx-ty (indeksowany od 0) element tablicy lub NULL jeżeli al jest NULLem lub idx jest poza rozmiarem tablicy.
+ * Zwraca @p idx-ty (indeksowany od 0) element tablicy lub NULL jeżeli @p al jest NULLem lub @p idx jest poza rozmiarem tablicy.
  * @param al - wskaźnik na tablicę
  * @param idx - pozycja, z której funkcja odzyskuje wartość
  * @return Wskaźnik na zawartość idx-tego elementu tablicy lub NULL.
@@ -67,15 +75,15 @@ ArrayListNode* newArrayListNode(char * text);
 void const * arrayListGet (ArrayList const * al, size_t idx);
 
 /**
- * [ADAPTER (arrayListGet)] Zwraca idx-ty (indeksowany od 0) element tablicy.
- * @param al - wskaźnik na tablicę
+ * [ADAPTER (arrayListGet)] Zwraca wskaźnik na @p idx-ty (indeksowany od 0) element tablicy @p pnum.
+ * @param pnum - wskaźnik na tablicę
  * @param idx - pozycja w tablicy al
- * @return Wskaźnik na zawartość idx-tego elementu tablicy. Jeżeli tablica jest NULLem lub rozmiar tablicy <= idx, to zwraca NULL.
+ * @return Wskaźnik na zawartość idx-tego elementu tablicy @p pnum. Jeżeli tablica jest NULLem lub rozmiar tablicy <= @p idx, to zwraca NULL.
  */
 char const * phnumGet (PhoneNumbers const * pnum, size_t idx);
 
 /**
- * Dodaje element na koniec tablicy
+ * Dodaje element @p node na koniec tablicy @p al
  * @param al - wskaźnik na tablicę
  * @param node - wskaźnik na element do dodania
  * @return Informacja, czy dodanie się powiodło. W szczególności false, jeżeli tablica lub element jest NULLem.
@@ -95,7 +103,8 @@ void arrayListDelete (ArrayList * al);
 void phnumDelete (PhoneNumbers* pnum);
 
 /**
- * Usuwa arrayListNode z tablicy, nie zachowuje kolejności. Jeżeli al jest NULLem, nic nie robi
+ * Usuwa arrayListNode z tablicy @p al, nie zachowuje kolejności. Dealokuje @p aln. Jeżeli @p al jest NULLem, nic nie robi.
+ * Jeżeli @p aln nie należy do @p al, to undefined behaviour.
  * @param al - tablica
  * @param aln - node do usunięcia
  */
@@ -103,12 +112,12 @@ void arrayListCutOut (ArrayList * al, ArrayListNode* aln);
 
 /**
  * @param al - tablica do sprawdzenia
- * @return True jeżeli al jest NULLem lub pusta, false otherwise
+ * @return True jeżeli @p al jest NULLem lub pusta, false otherwise
  */
 bool isArrayListEmpty (ArrayList * al);
 
 /**
- * Sortuje tablicę char*-ek qsortem. Nic nie robi, gdy tablica jest NULLem.
+ * Sortuje tablicę ArrayNode'ów z char* qsortem. Nic nie robi, gdy tablica jest NULLem.
  * @param al - tablica do posortowania
  */
 void stringArrayListSort (ArrayList * al);

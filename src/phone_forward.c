@@ -29,7 +29,7 @@ typedef struct PhoneForward {
 } PhoneForward;
 
 /**
- * Sprawdza, czy ciąg znaków składa się z cyfr
+ * Sprawdza, czy ciąg znaków @p number składa się tylko z cyfr
  * @param number - ciąg znaków,
  * @return true jeżeli number składa się tylko z cyfr, false w przeciwnym wypadku.
  */
@@ -48,7 +48,7 @@ bool verifyNumber(char const * number){
 }
 
 PhoneForward* phfwdNew(void){
-  PhoneForward* phFwd = malloc(sizeof(PhoneForward));
+  PhoneForward* phFwd = calloc(1, sizeof(PhoneForward));
 
   if (phFwd == NULL){
     return NULL;
@@ -58,6 +58,9 @@ PhoneForward* phfwdNew(void){
 
   phFwd->parent = NULL;
   phFwd->forwards = calloc(DIGIT_COUNT, sizeof(PhoneForward const *));
+  for (size_t i = 0; i < DIGIT_COUNT; i++){
+    phFwd->forwards[i] = NULL;
+  }
 
   phFwd->redirTarget = NULL;
   phFwd->redirNode = NULL;
@@ -81,7 +84,7 @@ void phfwdDelete(PhoneForward* pf){
   free(pf);
 }
 /**
- * Zwraca liczbę określoną cyfrą typu char
+ * Zwraca liczbę określoną cyfrą @p c
  * @param c - cyfra
  * @return wartość c w zakresie [0, 9];
  */
@@ -91,9 +94,9 @@ size_t charToDig(char const c){
 
 
 /**
- * Oblicza liczbę synów wierzchołka prefiksowego.
+ * Oblicza liczbę synów wierzchołka prefiksowego @p pf.
  * @param pf - wierzchołek prefixowy
- * @return Liczba synów (rozszerzeń prefiksu) pf
+ * @return Liczba synów (rozszerzeń prefiksu) pf, 0 jeżeli pf jest NULLem.
  */
 size_t countActiveSons(PhoneForward * pf){
   size_t activeSonsCount = 0;
@@ -109,7 +112,7 @@ size_t countActiveSons(PhoneForward * pf){
 }
 
 /**
- * Próbuje usunąć nieużywany wierzchołek prefixowy
+ * Usuwa i dealokuje wierzchołek prefixowy @p pf,  jeżeli jest nieużywany.
  * @param pf - wierzchołek prefixowy do potencjalnego usunięcia
  */
 void cleanNonRecursive(PhoneForward *pf){
@@ -129,12 +132,12 @@ void cleanNonRecursive(PhoneForward *pf){
 
 
 /**
- * Próbuje usunąć nieużywany wierzchołek prefixowy i jego potencjalnie nieużywanych przodków
+ * Usuwa i dealokuje wierzchołek prefixowy @p pf jeżeli jest nieużywany, oraz jego nieużywanych przodków
  * @param pf - najniższy wierzchołek do usunięcia
  */
 
 void cleanDownToUpRecursive(PhoneForward *pf){
-  if (pf == NULL || pf->digit == 0 || isArrayListEmpty(pf->reverseRedirs) == false){
+  if (pf == NULL || pf->digit == 0 || pf->redirTarget != NULL || isArrayListEmpty(pf->reverseRedirs) == false){
     return;
   }
 
@@ -173,7 +176,7 @@ PhoneForward* getVertexFromPrefixPassively (PhoneForward *pf, char const *prefix
 
 /**
  *
- * Zwraca wierzchołek odpowiadający numerowi prefix. W tym celu może tworzyć nowe wierzchołki. Przy błędzie alokacji, nie pozostawia dodatkowych
+ * Zwraca wierzchołek odpowiadający numerowi prefix. W tym celu może tworzyć (alokować) nowe wierzchołki. Przy błędzie alokacji, nie pozostawia dodatkowych
  * wierzchołków.
  * @param pf - wierzchołek początkowy
  * @param prefix - ciąg początkowy
@@ -211,14 +214,19 @@ PhoneForward* getVertexFromPrefixAggressively(PhoneForward *pf, char const *pref
  * @param source - źródło usuwanego przekierowania, nie jest NULLem
  */
 void removeTarget(PhoneForward *source){
+  if (source == NULL || source->redirTarget == NULL || source->redirNode == NULL){
+    return;
+  }
   PhoneForward* target = source->redirTarget;
 
   if (target != NULL){
     ArrayListNode* toRemove = source->redirNode;
+    source->redirTarget = malloc(sizeof(PhoneForward *));
 
     arrayListCutOut(target->reverseRedirs, toRemove);
     cleanDownToUpRecursive(target);
 
+    free(source->redirTarget);
     source->redirNode = NULL;
     source->redirTarget = NULL;
   }
@@ -229,6 +237,9 @@ bool phfwdAdd(PhoneForward* pf, char const * oldPrefix, char const * newPrefix){
     return false;
   }
   if (!verifyNumber(oldPrefix) || !verifyNumber(newPrefix)){
+    return false;
+  }
+  if (strcmp(oldPrefix, newPrefix) == 0){
     return false;
   }
 
@@ -243,12 +254,15 @@ bool phfwdAdd(PhoneForward* pf, char const * oldPrefix, char const * newPrefix){
   PhoneForward* target = getVertexFromPrefixAggressively(pf, newPrefix);
 
   if (target == NULL){
+    cleanDownToUpRecursive(source);
     return false;
   }
 
   ArrayListNode* transferNode = malloc(sizeof(ArrayListNode));
 
   if (transferNode == NULL){
+    cleanDownToUpRecursive(source);
+    cleanDownToUpRecursive(target);
     return false;
   }
 
@@ -267,7 +281,7 @@ bool phfwdAdd(PhoneForward* pf, char const * oldPrefix, char const * newPrefix){
   return true;
 }
 /**
- * Usuwa rekurencyjnie (w dół) przekierowania.
+ * Usuwa rekurencyjnie (w dół) przekierowania (przekierowanie i przekierowania pochodne).
  * @param pf - wierzchołek prefixowy określający początek przekierowania
  */
 
@@ -278,6 +292,9 @@ void removeRedirsRecursive(PhoneForward* pf) {
   if (pf->forwards != NULL) {
     for (size_t i = 0; i < DIGIT_COUNT; i++) {
       PhoneForward *son = pf->forwards[i];
+      if (son == NULL){
+        continue;
+      }
       removeRedirsRecursive(son);
       cleanNonRecursive(son);
     }
@@ -297,7 +314,7 @@ size_t getDistance(PhoneForward* pf){
 }
 
 /**
- * Zwraca pełny prefix (jako char*) reprezentujący odpowiedni wierzchołek w drzewie prefixowym.
+ * Alokuje i zwraca pełny prefix (jako char*) reprezentujący odpowiedni wierzchołek w drzewie prefixowym.
  * @param pf - obecny wierzchołek
  * @param dist - liczba określająca liczbę wierzchołków niżej, inicjalizowana jako 0
  * @param current - wskaźnik do pozycji, na której ma być dokonany zapis. Proszę nie wrzucać tam NULLa.
@@ -324,7 +341,7 @@ void phfwdRemove(PhoneForward* pf, char const * num){
 }
 
 /**
- * Zwraca numer, na który przekierowany zostaje num.
+ * Zwraca kopię numeru, na który przekierowany zostaje num. Alokuje string (char*).
  * @param pf - korzeń struktury
  * @param num - ciąg cyfr, wybrany numer
  * @return przekierowanie z num
@@ -383,11 +400,13 @@ struct PhoneNumbers const * phfwdReverse(struct PhoneForward * pf, char const *n
   }
 
   ArrayList * answer = newArrayList();
+  arrayListAdd(answer, newArrayListNode(num));
 
   char* numRedirected = getRedirection(pf, num);
   if (strcmp(numRedirected, num) == 0){
     arrayListAdd(answer, newArrayListNode(numRedirected));
   }
+  free(numRedirected);
 
   PhoneForward * target = getVertexFromPrefixAggressively(pf, num);
   PhoneForward * target0 = target;
@@ -407,9 +426,9 @@ struct PhoneNumbers const * phfwdReverse(struct PhoneForward * pf, char const *n
 
         char * revertedString = getRedirection(pf, stringToBeReverted);
 
-        if (strcmp(revertedString, num) == 0){
+        //if (strcmp(revertedString, num) == 0){
           arrayListAdd(answer, newArrayListNode(stringToBeReverted));
-        }
+        //}
         //printf("REVERT (%s %s): %s -> %s\n", numPtr, num, stringToBeReverted, revertedString);
 
         free(revertedString);
@@ -434,6 +453,7 @@ struct PhoneNumbers const * phfwdReverse(struct PhoneForward * pf, char const *n
       arrayListCutOut(answer, answer->phNums[i]);
     }
   }
+  stringArrayListSort(answer);
 
   return answer;
 

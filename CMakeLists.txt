@@ -30,7 +30,11 @@ set(SOURCE_FILES
 # Wskazujemy plik wykonywalny.
 add_executable(phone_forward ${SOURCE_FILES})
 
-add_executable(arrayList_test src/arrayList.c src/arrayList.h src/arrayList_test.c)
+if (CMAKE_BUILD_TYPE EQUAL "Debug")
+	add_executable(arrayList_test src/arrayList.c src/arrayList.h src/arrayList_test.c)
+endif (CMAKE_BUILD_TYPE EQUAL "Debug")
+
+#add_executable(main src/arrayList.c src/arrayList.h src/phone_forward.c src/phone_forward.h src/main.c)
 
 # Dodajemy obsługę Doxygena: sprawdzamy, czy jest zainstalowany i jeśli tak to:
 find_package(Doxygen)

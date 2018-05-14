@@ -5,6 +5,15 @@
 
 #define MAX_LEN 23
 
+
+char* getRandomNumber(){
+  char* answer = calloc(12, sizeof(char));
+  for (size_t j = 0; j < 10; j++){
+    answer[j] = (char)'0' + (char)(rand() % 10);
+  }
+  return answer;
+}
+
 int main() {
   char num1[MAX_LEN + 1], num2[MAX_LEN + 1];
   struct PhoneForward *pf;
@@ -108,11 +117,43 @@ int main() {
   assert(phnumGet(pnum, 0) == NULL);
   phnumDelete((struct PhoneNumbers *)pnum);
 
-  phfwdDelete(pf);
-
   pnum = NULL;
-  phnumDelete((struct PhoneNumbers *)pnum);
+  phfwdDelete(pf);
   pf = NULL;
+
+
+  pf = phfwdNew();
+  srand(33421);
+  for (size_t i = 0; i < 151001000; i++){
+    if (i % 100000 == 0){
+      printf("Line %zu:\n", i);
+    }
+    char* source = getRandomNumber();
+    char* target = getRandomNumber();
+    phfwdAdd(pf, source, target);
+    pnum = phfwdGet(pf, source);
+    assert (phnumGet(pnum, 0) != 0);
+    phnumDelete((struct PhoneNumbers *)pnum);
+
+    pnum = phfwdReverse(pf, target);
+    size_t sameCount = 0;
+    for (size_t j = 0; true; j++){
+      char const * ans = phnumGet(pnum, j);
+      if (ans == NULL){
+        break;
+      }
+      if (strcmp(ans, source) == 0){
+        sameCount++;
+      }
+    }
+    phnumDelete((struct PhoneNumbers *)pnum);
+    pnum = NULL;
+    assert(sameCount > 0);
+
+    free(source);
+    free(target);
+  }
+
   phfwdDelete(pf);
 
   return 0;
