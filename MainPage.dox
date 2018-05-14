@@ -3,6 +3,10 @@
 
 ### Treść zadania
 
+Celem zadania jest napisanie programu umożliwiającego grupom fanów kina wybieranie filmów do maratonu filmowego. Każdy kinomaniak (użytkownik) może wprowadzać preferowane filmy, które chciałby obejrzeć w trakcie maratonu, może je także usuwać. Użytkownik identyfikowany jest za pomocą identyfikatora liczbowego. Identyfikatory użytkowników są unikalne. Film identyfikowany jest za pomocą identyfikatora liczbowego. Identyfikatory filmów są unikalne. Użytkownicy tworzą drzewo. Każdy już zapisany użytkownik może dopisywać nowych użytkowników, jako potomków swojego wierzchołka drzewa. Na początku istnieje użytkownik o identyfikatorze 0 (korzeń drzewa), niemający żadnych preferencji filmowych. Każdy użytkownik z wyjątkiem użytkownika o identyfikatorze 0 może siebie wypisać. Identyfikator filmu jest też jego arbitralnie ustaloną oceną.
+
+Rozwiązanie powinno korzystać z dynamicznie alokowanych struktur danych. Implementacja powinna być jak najbardziej efektywna. Należy unikać zbędnego alokowania pamięci i kopiowania danych. Przykładowe dane dla programu znajdują się w załączonym pliku.
+
 Uwaga: aktualna treść zadania znajduje się w [Moodle'u](https://moodle.mimuw.edu.pl).
 
 ### Opis programu
