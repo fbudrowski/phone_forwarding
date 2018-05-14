@@ -9,5 +9,8 @@ Uwaga: aktualna treść zadania znajduje się w [Moodle'u](https://moodle.mimuw.
 
 Tegoroczne duże zadanie polega na zaimplementowaniu operacji na numerach telefonów.
 
-Program obsługuje przekierowania numerów telefonów, pozwala na wyznaczenie numeru, na który dany numer jest przekierowany oraz zbioru numerów, które podlegają przekierowaniu na dany.
+Program obsługuje przekierowania numerów telefonów i pozwala na wykonanie następujących operacji:
+1. Przechowywanie i modyfikacja zbioru przekierowań.
+2. Wyznaczenie numeru, na który dany numer jest przekierowany
+3. Wyznaczenie zbioru numerów, które podlegają przekierowaniu na dany.
 */
