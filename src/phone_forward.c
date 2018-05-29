@@ -81,7 +81,7 @@ void phfwdDelete(PhoneForward const * pf){
   }
   arrayListDelete(pf->reverseRedirs);
 
-  free(pf);
+  free((void*)pf);
 }
 /**
  * Zwraca liczbę określoną cyfrą @p c

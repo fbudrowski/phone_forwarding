@@ -95,16 +95,15 @@ size_t readComment(char * oldChar, size_t * charIndex){
     return EOF_MARK;
   }
   //printf("Comment: %c", *oldChar);
-  while(last != '$' || *oldChar != '$'){
+  while(last != '$' || *oldChar != '$') {
     last = *oldChar;
     *oldChar = (char) getchar();
     //printf("%c", *oldChar);
     (*charIndex)++;
-    if (*oldChar == EOF){
+    if (*oldChar == EOF) {
       return EOF_MARK;
     }
   }
-  //printf("\n");
   *oldChar = ' ';
   return 0;
 }
@@ -149,7 +148,7 @@ size_t readWhitespace(char * oldChar, size_t * charIndex){
  */
 size_t readNumber(VarLenText ** vlt0, char * oldChar, size_t * charIndex){
   while (*oldChar == '$' || isspace(*oldChar)){
-    size_t status = readComment(oldChar, charIndex);
+    size_t status = readWhitespace(oldChar, charIndex);
     if (status != 0){
       return status;
     }
@@ -261,8 +260,8 @@ size_t deleteForward(ForwardInformation * information, char * identifier){
 
 /**
  * Wczytuje instrukcję zaczynającą się literą: są to instrukcje NEW i DEL.
- * @param information informacja o systemie
- * @param oldChar wskaźnik do poprzedniego znaku
+ * @param information informacja o stanie programu
+ * @param oldChar wskaźnik na ostatni wczytany znak
  * @return status wczytywania: 0 jeżeli udało się wczytać znaki, numer znaku przy błędzie, EOFmark przy EOF.
  */
 size_t readNEWDELInstruction(ForwardInformation *information, char *oldChar){
@@ -332,6 +331,10 @@ size_t readNEWDELInstruction(ForwardInformation *information, char *oldChar){
       setForward(information, identifier);
       if (information->currentForward == NULL){
         fprintf(stderr, "ERROR NEW %zu\n", instructionIndex);
+        free(identifier);
+        free(vlt->text);
+        free(vlt);
+        return EOF_MARK + 1;
       }
     }
     else if (isdigit(let0)){
@@ -342,7 +345,8 @@ size_t readNEWDELInstruction(ForwardInformation *information, char *oldChar){
         free(identifier);
         free(vlt->text);
         free(vlt);
-        fprintf(stderr, "Error DEL %zu\n", instructionIndex);
+        fprintf(stderr, "ERROR DEL %zu\n", instructionIndex);
+        return EOF_MARK + 1;
       }
       else {
         phfwdRemove(information->currentForward, identifier);
@@ -355,6 +359,10 @@ size_t readNEWDELInstruction(ForwardInformation *information, char *oldChar){
       size_t status2 = deleteForward(information, identifier);
       if (status2 == 1){
         fprintf(stderr, "ERROR DEL %zu\n", instructionIndex);
+        free(identifier);
+        free(vlt->text);
+        free(vlt);
+        return EOF_MARK + 1;
       }
 
     }
@@ -374,8 +382,8 @@ size_t readNEWDELInstruction(ForwardInformation *information, char *oldChar){
 
 /**
  * Wczytuje instrukcję zaczynającą się cyfrą.
- * @param information
- * @param oldChar
+ * @param information informacja o stanie programu
+ * @param oldChar wskaźnik na ostatni wczytany znak
  * @return status wczytywania: 0 jeżeli udało się wczytać znaki, numer znaku przy błędzie, EOFmark przy EOF.
  */
 size_t readNumberInstruction(ForwardInformation * information, char * oldChar){
@@ -398,7 +406,7 @@ size_t readNumberInstruction(ForwardInformation * information, char * oldChar){
   size_t operatorIndex = information->charIndex;
   if (*oldChar == '>') {
     *oldChar = (char) getchar();
-    information->charIndex ++;
+    information->charIndex++;
     if (isspace(*oldChar)) {
       size_t status = readWhitespace(oldChar, &information->charIndex);
       if (status != 0) {
@@ -429,6 +437,11 @@ size_t readNumberInstruction(ForwardInformation * information, char * oldChar){
     }
     if (!ok){
       fprintf(stderr, "ERROR > %zu\n", operatorIndex);
+      free(num2->text);
+      free(num2);
+      free(num1->text);
+      free(num1);
+      return EOF_MARK + 1;
     }
     free(num2->text);
     free(num2);
@@ -439,6 +452,10 @@ size_t readNumberInstruction(ForwardInformation * information, char * oldChar){
 #endif
     if (information->currentForward == NULL){
       fprintf(stderr, "ERROR ? %zu\n", operatorIndex);
+
+      free(num1->text);
+      free(num1);
+      return EOF_MARK + 1;
     }
     else {
       PhoneNumbers const *numbers = phfwdGet(information->currentForward, num1->text);
@@ -463,10 +480,10 @@ size_t readNumberInstruction(ForwardInformation * information, char * oldChar){
 }
 
 /**
- * Wczytuje instrukcję zaczynającą się znakiem zapytania
- * @param information
- * @param oldChar
- * @return status wczytywania: 0 jeżeli udało się wczytać znaki, numer znaku przy błędzie, EOFmark przy EOF.
+ * Wczytuje instrukcję zaczynającą się znakiem zapytania.
+ * @param information informacja o stanie programu
+ * @param oldChar wskaźnik na ostatni wczytany znak
+ * @return status wczytywania: 0 jeżeli udało się wczytać znaki, numer znaku przy błędzie, EOFmark przy EOF..
  */
 size_t readQuestionMarkInstruction(ForwardInformation * information, char * oldChar){
   size_t operatorIndex = information->charIndex;
@@ -492,6 +509,9 @@ size_t readQuestionMarkInstruction(ForwardInformation * information, char * oldC
 #endif
   if (information->currentForward == NULL){
     fprintf(stderr, "ERROR ? %zu\n", operatorIndex);
+    free(vlt->text);
+    free(vlt);
+    return EOF_MARK + 1;
   }
   else{
     PhoneNumbers const * numbers = phfwdReverse(information->currentForward, vlt->text);
@@ -510,8 +530,8 @@ size_t readQuestionMarkInstruction(ForwardInformation * information, char * oldC
 
 /**
  * Wczytuje instrukcję.
- * @param information
- * @param oldChar
+ * @param information informacja o stanie programu
+ * @param oldChar wskaźnik na ostatni wczytany znak
  * @return status wczytywania: 0 jeżeli udało się wczytać znaki, numer znaku przy błędzie, EOFmark przy EOF.
  */
 size_t readInstruction(ForwardInformation * information, char* oldChar){

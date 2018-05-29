@@ -123,10 +123,10 @@ void arrayListDelete (ArrayList const * al) {
     arrayListNodeDelete(al->phNums[i]);
   }
   free(al->phNums);
-  free(al);
+  free((void*)al);
 }
 
-void phnumDelete (PhoneNumbers* pnum) {
+void phnumDelete (PhoneNumbers const * pnum) {
   arrayListDelete(pnum);
 }
 

@@ -103,7 +103,7 @@ bool arrayListAdd (ArrayList* al, ArrayListNode * node);
  * Usuwa tablicę
  * @param al - tablica do usunięcia
  */
-void arrayListDelete (ArrayList * al);
+void arrayListDelete (ArrayList const * al);
 
 /**
  * [ADAPTER] Usuwa tablicę
