@@ -58,6 +58,15 @@ typedef PhoneNumbers ArrayList;
  */
 ArrayList* newArrayList (void);
 
+
+/**
+ * Tworzy nowy element tablicy ArrayList. Używa wskaźnika @p ptr do nowego elementu tablicowego.
+ * Jeżeli alokacja pamięci się nie powiedzie, zwraca NULL.
+ * @param ptr - Wskaźnik do użycia.
+ * @return Nowy element do ArrayList, zawierający kopię tekstu text lub NULL.
+ */
+ArrayListNode * newArrayListNodeVoid(void * ptr);
+
 /**
  * Tworzy nowy element tablicy ArrayList. Kopiuje stringa @p text do nowego elementu tablicowego.
  * Jeżeli alokacja pamięci się nie powiedzie, zwraca NULL.
@@ -100,7 +109,7 @@ void arrayListDelete (ArrayList * al);
  * [ADAPTER] Usuwa tablicę
  * @param pnum - tablica do usunięcia
  */
-void phnumDelete (PhoneNumbers* pnum);
+void phnumDelete (PhoneNumbers const * pnum);
 
 /**
  * Usuwa arrayListNode z tablicy @p al, nie zachowuje kolejności. Dealokuje @p aln. Jeżeli @p al jest NULLem, nic nie robi.

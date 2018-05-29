@@ -72,6 +72,18 @@ bool arrayListAdd (ArrayList* al, ArrayListNode* node){
   return true;
 }
 
+ArrayListNode * newArrayListNodeVoid(void * ptr){
+  ArrayListNode * node = malloc(sizeof(ArrayListNode));
+  if (node == NULL){
+    return NULL;
+  }
+  node->value = ptr;
+  node->valueToBeFreed = false;
+  node->pos = 0;
+  return node;
+}
+
+
 ArrayListNode* newArrayListNode(char const * text){
   ArrayListNode* node = malloc(sizeof(ArrayListNode));
   if (node == NULL){
@@ -103,7 +115,7 @@ void arrayListNodeDelete(ArrayListNode * aln){
   }
 }
 
-void arrayListDelete (ArrayList * al) {
+void arrayListDelete (ArrayList const * al) {
   if (al == NULL){
     return;
   }

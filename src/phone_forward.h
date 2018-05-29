@@ -35,7 +35,7 @@ struct PhoneForward * phfwdNew(void);
  * wartość NULL.
  * @param[in] pf – wskaźnik na usuwaną strukturę.
  */
-void phfwdDelete(struct PhoneForward *pf);
+void phfwdDelete(struct PhoneForward const *pf);
 
 /** @brief Dodaje przekierowanie.
  * Dodaje przekierowanie wszystkich numerów mających prefiks @p num1, na numery,
@@ -95,7 +95,7 @@ struct PhoneNumbers const * phfwdReverse(struct PhoneForward *pf, char const *nu
  * wartość NULL.
  * @param[in] pnum – wskaźnik na usuwaną strukturę.
  */
-void phnumDelete(struct PhoneNumbers *pnum);
+void phnumDelete(struct PhoneNumbers const *pnum);
 
 /** @brief Udostępnia numer.
  * Udostępnia wskaźnik na napis reprezentujący numer. Napisy są indeksowane

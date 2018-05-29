@@ -25,10 +25,11 @@ set(SOURCE_FILES
         src/arrayList.h
         src/phone_forward.c
         src/phone_forward.h
-        src/phone_forward_example.c )
+        )
 
 # Wskazujemy plik wykonywalny.
-add_executable(phone_forward ${SOURCE_FILES})
+add_executable(phone_forward ${SOURCE_FILES} src/phone_forward_interface.c)
+add_executable(phone_test ${SOURCE_FILES} src/phone_forward_tests.c)
 
 if (CMAKE_BUILD_TYPE EQUAL "Debug")
 	add_executable(arrayList_test src/arrayList.c src/arrayList.h src/arrayList_test.c)

@@ -68,7 +68,7 @@ PhoneForward* phfwdNew(void){
   return phFwd;
 }
 
-void phfwdDelete(PhoneForward* pf){
+void phfwdDelete(PhoneForward const * pf){
   if (pf == NULL){
     return;
   }
