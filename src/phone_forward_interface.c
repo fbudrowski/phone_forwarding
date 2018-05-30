@@ -1,4 +1,5 @@
-/**@file Terminalowy interfejs użytkownika programu phone_forward.
+/**@file
+ * Terminalowy interfejs użytkownika programu phone_forward.
  *
  */
 #include <stdio.h>
@@ -19,8 +20,11 @@ const size_t EOF_MARK = 991232114;
  * Zwalnia się ją poprzez instrukcję free(this->text), free(this).
  */
 typedef struct VarLenText{
+    /** Właściwy ciąg charów, zawiera @p textCapacity elementów*/
     char * text;
+    /** Długość tekstu */
     size_t textSize;
+    /** Obecna pojemność tekstu */
     size_t textCapacity;
 } VarLenText;
 
@@ -45,6 +49,11 @@ VarLenText * newVarLenText(char starting){
   return vlt;
 }
 
+/**
+ * Sprawdza, czy @p vlt jest pusty.
+ * @param vlt string do sprawdzenia
+ * @return true, jeżeli @p vlt jest pusty, false wpp.
+ */
 bool isVarLenTextEmpty(VarLenText * vlt){
   return vlt->textSize == 0;
 }
@@ -197,12 +206,23 @@ size_t readIdentifier(VarLenText ** vlt0, char * oldChar, size_t * charIndex){
 
 
 
-
+/**
+ * Para <nazwa, baza przekierowań>.
+ * Zwalnianie wraz z usunięciem wskaźników za pomocą deleteMatch.
+ */
 struct NameForwardMatch{
+    /** Nazwa bazy przekierowań. */
     char * name;
+    /** Baza przekierowań */
     struct PhoneForward * forward;
 };
 
+/**
+ * Konstruktor do pary NameForwardMatch (<nazwa, baza przekierowań>).
+ * @param name nazwa bazy przekierowań
+ * @param forward wskaźnik na bazę przekierowań
+ * @return Para elementów <@p name, @p forward>
+ */
 struct NameForwardMatch * newNameForwardMatch(char * name, struct PhoneForward * forward){
   struct NameForwardMatch * nfm = malloc(sizeof(struct NameForwardMatch));
   nfm->name = name;
@@ -210,20 +230,34 @@ struct NameForwardMatch * newNameForwardMatch(char * name, struct PhoneForward *
   return nfm;
 }
 
+/**
+ * Usuwa parę NameForwardMatch
+ * @param match para do usunięcia
+ */
 void deleteMatch(struct NameForwardMatch * match){
   free(match->name);
   phfwdDelete(match->forward);
   free(match);
 }
 
-
+/**
+ * Struktura przechowująca informacje o stanie programu.
+ */
 typedef struct ForwardInformation{
+    /** Zbiór baz przekierowań */
     ArrayList * forwardList;
+    /** Obecnie aktywne przekierowanie (NULL jeżeli nie ma takiego) */
     struct PhoneForward * currentForward;
+    /** Liczba wczytanych bajtów (charów) przez program */
     size_t charIndex;
 } ForwardInformation;
 
 
+/**
+ * Ustawia bazę o nazwie @p identifier do użytku. Jeżeli taka baza nie istnieje, tworzy pustą i ustawia ją do użytku.
+ * @param information dane o stanie programu
+ * @param identifier nazwa bazy
+ */
 void setForward(ForwardInformation * information, char * identifier){
   for (size_t i = 0; i < information->forwardList->phNumCount; i++) {
     struct NameForwardMatch const * rightnow = arrayListGet(information->forwardList, i);
@@ -241,6 +275,12 @@ void setForward(ForwardInformation * information, char * identifier){
   information->currentForward = newMatch->forward;
 }
 
+/**
+ * Usuwa bazę o nazwie @p identifier do użytku. Jeżeli baza była w bezpośrednim użyciu, ustawia obecną bazę na NULL.
+ * @param information dane o bazie.
+ * @param identifier nazwa bazy do usunięcia
+ * @return Status - 0 jeżeli się udało, 1 jeżeli baza o nazwie identifier nie istnieje.
+ */
 size_t deleteForward(ForwardInformation * information, char * identifier){
 
   for (size_t i = 0; i < information->forwardList->phNumCount; i++){
@@ -564,7 +604,10 @@ size_t readInstruction(ForwardInformation * information, char* oldChar){
   }
 }
 
-
+/**
+ * Funkcja uruchamiająca program.
+ * @return Zero.
+ */
 int main(){
   ForwardInformation information;
   information.forwardList = newArrayList();

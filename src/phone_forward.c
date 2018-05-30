@@ -16,14 +16,20 @@ const size_t DIGIT_COUNT = 10;
  */
 typedef struct PhoneForward {
 
-    char digit; /** Cyfra w obecnym wierzchołku */
+    /** Cyfra w obecnym wierzchołku */
+    char digit;
 
-    struct PhoneForward * parent; /** Ojciec wierzchołka */
-    struct PhoneForward ** forwards; /** Tablica synów */
+    /** Ojciec wierzchołka */
+    struct PhoneForward * parent;
+    /** Tablica synów */
+    struct PhoneForward ** forwards;
 
-    struct PhoneForward * redirTarget; /** Wskaźnik na przekierowanie numeru */
-    ArrayListNode * redirNode; /** Wskaźnik na wierzchołek przekierowania */
-    ArrayList* reverseRedirs; /** Lista wierzchołków, które przekierowują na obecny */
+    /** Wskaźnik na przekierowanie numeru */
+    struct PhoneForward * redirTarget;
+    /** Wskaźnik na wierzchołek przekierowania */
+    ArrayListNode * redirNode;
+    /** Lista wierzchołków, które przekierowują na obecny */
+    ArrayList* reverseRedirs;
 
 
 } PhoneForward;
