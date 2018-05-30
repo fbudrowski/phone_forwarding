@@ -16,6 +16,11 @@
 const size_t EOF_MARK = 991232114;
 
 /**
+ * Stała wskazująca na uruchomienie programu w celu weryfikacji wejścia dla celów skryptu.
+ */
+const size_t VERIFICATION_PROGRAM = 143214123;
+
+/**
  * Struktura trzymająca modyfikowalnego i przedłużalnego stringa.
  * Zwalnia się ją poprzez instrukcję free(this->text), free(this).
  */
@@ -250,6 +255,8 @@ typedef struct ForwardInformation{
     struct PhoneForward * currentForward;
     /** Liczba wczytanych bajtów (charów) przez program */
     size_t charIndex;
+    /** Status programu - domyślnie zero */
+    size_t programStatus;
 } ForwardInformation;
 
 
@@ -305,6 +312,9 @@ size_t deleteForward(ForwardInformation * information, char * identifier){
  * @return status wczytywania: 0 jeżeli udało się wczytać znaki, numer znaku przy błędzie, EOFmark przy EOF.
  */
 size_t readNEWDELInstruction(ForwardInformation *information, char *oldChar){
+  if (information->programStatus == VERIFICATION_PROGRAM){
+    return EOF_MARK;
+  }
   VarLenText * vlt = NULL;
   size_t instructionIndex = information->charIndex;
   {
@@ -487,6 +497,11 @@ size_t readNumberInstruction(ForwardInformation * information, char * oldChar){
     free(num2);
   }
   else if (*oldChar == '?') {
+    if (information->programStatus == VERIFICATION_PROGRAM){
+      free(num1->text);
+      free(num1);
+      return EOF_MARK;
+    }
 #ifdef DEBUG
     printf("Querying redirections from %s (%zu)\n", num1->text, operatorIndex);
 #endif
@@ -526,6 +541,9 @@ size_t readNumberInstruction(ForwardInformation * information, char * oldChar){
  * @return status wczytywania: 0 jeżeli udało się wczytać znaki, numer znaku przy błędzie, EOFmark przy EOF..
  */
 size_t readQuestionMarkInstruction(ForwardInformation * information, char * oldChar){
+  if (information->programStatus == VERIFICATION_PROGRAM){
+    return EOF_MARK;
+  }
   size_t operatorIndex = information->charIndex;
   *oldChar = (char)getchar();
   information->charIndex++;
@@ -604,15 +622,25 @@ size_t readInstruction(ForwardInformation * information, char* oldChar){
   }
 }
 
+
+
 /**
  * Funkcja uruchamiająca program.
  * @return Zero.
  */
-int main(){
+int main(int argc, char* argv[]){
   ForwardInformation information;
   information.forwardList = newArrayList();
   information.currentForward = NULL;
   information.charIndex = 1;
+  information.programStatus = 0;
+
+
+  if (argc == 1 && strcmp("-verskr", argv[0]) == 0){
+    information.currentForward = phfwdNew();
+    information.programStatus = VERIFICATION_PROGRAM;
+  }
+
   char a = (char)getchar();
   while(true){
     size_t status = readInstruction(&information, &a);
