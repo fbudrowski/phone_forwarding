@@ -1,8 +1,26 @@
 #!/bin/bash
 
+#echo "Skrypt: "
+#echo $1
+#echo $2
+#echo $3
+
 if [ $# -ne 3 ]; then
-	echo "Użycie: ./phone_forward.sh <program> <operacje> <y>"
+	echo "Użycie: ./phone_forward.sh <program> <operacje> <liczba>"
 fi;
+
+"$1" "-verskr" <$2 1>temp.out 2>temp.err
+echo "" > blank.err
+#cat temp.err
+#cat blank.err
+
+if [[ "$(diff -qBZ temp.err blank.err)" != "" ]]; then
+	echo "Złe dane wejściowe"
+fi
+
+rm temp.err blank.err
+
+
 echo "NEW xd" > temp.in
 cat $2 >> temp.in
 echo "? $3" >> temp.in 

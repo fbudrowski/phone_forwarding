@@ -628,7 +628,7 @@ size_t readInstruction(ForwardInformation * information, char* oldChar){
  * Funkcja uruchamiająca program.
  * @return Zero.
  */
-int main(int argc, char* argv[]){
+int main(int argc, char** argv){
   ForwardInformation information;
   information.forwardList = newArrayList();
   information.currentForward = NULL;
@@ -636,8 +636,8 @@ int main(int argc, char* argv[]){
   information.programStatus = 0;
 
 
-  if (argc == 1 && strcmp("-verskr", argv[0]) == 0){
-    information.currentForward = phfwdNew();
+  if (argc >= 2 && strcmp("-verskr", argv[1]) == 0){
+    setForward(&information, "XD");
     information.programStatus = VERIFICATION_PROGRAM;
   }
 
