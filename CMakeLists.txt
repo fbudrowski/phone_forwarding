@@ -28,7 +28,7 @@ set(SOURCE_FILES
         )
 
 # Wskazujemy plik wykonywalny.
-add_executable(phone_forward ${SOURCE_FILES} src/phone_forward_interface.c)
+add_executable(phone_forward ${SOURCE_FILES} src/phone_forward_main.c)
 #add_executable(phone_test ${SOURCE_FILES} src/phone_forward_tests.c)
 
 if (CMAKE_BUILD_TYPE EQUAL "Debug")
