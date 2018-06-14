@@ -217,7 +217,7 @@ size_t readIdentifier(VarLenText ** vlt0, char * oldChar, size_t * charIndex){
   for (size_t i = 1; true; i++){
     char a = (char)getchar();
     (*charIndex)++;
-    if (a == '$' || !isalnum12(a)){
+    if (a == '$' || !isalnum(a)){
       *oldChar = a;
       return 0;
     }
