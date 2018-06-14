@@ -19,11 +19,20 @@ const size_t EOF_MARK = 991232114;
  */
 const size_t VERIFICATION_PROGRAM = 143214123;
 
-
+/**
+ * Sprawdza, czy znak @p x jest cyfrą (przy rozszerzonej definicji cyfry o :;)
+ * @param x znak do sprawdzenie
+ * @return true, jeżeli x jest cyfrą, wpp false
+ */
 bool isdigit12(int x){
   return '0' <= x && x <= '0' + 12 - 1;
 }
 
+/**
+ * Sprawdza, czy znak @p x jest literą lub cyfrą (przy rozszerzonej definicji cyfry o :;)
+ * @param x znak do sprawdzenie
+ * @return true, jeżeli x jest literą lub cyfrą, wpp false
+ */
 bool isalnum12(int x){
   return isalpha(x) || isdigit12(x);
 }
@@ -543,7 +552,7 @@ size_t readNumberInstruction(ForwardInformation * information, char * oldChar){
 }
 
 /**
- * Wczytuje instrukcję zaczynającą się znakiem zapytania.
+ * Wczytuje instrukcję zaczynającą się znakiem zapytania lub małpą.
  * @param information informacja o stanie programu
  * @param oldChar wskaźnik na ostatni wczytany znak
  * @return status wczytywania: 0 jeżeli udało się wczytać znaki, numer znaku przy błędzie, EOFmark przy EOF..

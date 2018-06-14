@@ -465,24 +465,31 @@ struct PhoneNumbers const * phfwdReverse(struct PhoneForward * pf, char const *n
 
 }
 
+/**
+ * Oblicza rekurencyjnie, ile jest nietrywialnych numerów powstałych z przedłużenia prefiksu @p pf o @p len liter ze zbioru set.
+ * @param pf struktura określająca prefiks numeru.
+ * @param set zbiór niepowtarzających się cyfr.
+ * @param len pozostała długość
+ * @return liczba nietrywialnych numerów powstałych z przedłużenia prefiksu @p pf o @p len liter ze zbioru set.
+ */
 size_t nonTrivialCount(struct PhoneForward *pf, char const *set, size_t len){
-  if (len == 0){
-    return 0;
-  }
   size_t setlen = strlen(set);
-  if (pf->reverseRedirs->phNumCount > 0){
+  if (pf->reverseRedirs != NULL && pf->reverseRedirs->phNumCount > 0){
     size_t ans = 1;
     for (size_t i = 1; i <= len; i++){
       ans *= setlen;
     }
     return ans;
   }
+  if (len == 0){
+    return 0;
+  }
   size_t ans = 0;
   for (size_t i = 0; i < setlen; i++){
     char letter = set[i];
     size_t letterValue = (size_t)(letter - '0');
     if (pf->forwards == NULL || pf->forwards[letterValue] == NULL){
-      return 0;
+      continue;
     }
     ans += nonTrivialCount(pf->forwards[letterValue], set, len - 1);
   }
@@ -493,8 +500,9 @@ size_t phfwdNonTrivialCount(struct PhoneForward *pf, char const *set, size_t len
   if (pf == NULL || set == NULL || strlen(set) == 0 || len == 0){
     return 0;
   }
+
   size_t setlen = strlen(set);
-  char* set2 = malloc(setlen * sizeof(char));
+  char* set2 = calloc(setlen + 2, sizeof(char));
   if (set2 == NULL){
     return 0;
   }
@@ -514,7 +522,9 @@ size_t phfwdNonTrivialCount(struct PhoneForward *pf, char const *set, size_t len
       set2len++;
     }
   }
+  //printf("Set2 (%zu %zu): %s\n", set2len, len, set2);
+  size_t ans = nonTrivialCount(pf, set2, len);
   free(set2);
-  return nonTrivialCount(pf, set2, len);
+  return ans;
 }
 
