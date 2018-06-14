@@ -107,4 +107,18 @@ void phnumDelete(struct PhoneNumbers const *pnum);
  */
 char const * phnumGet(struct PhoneNumbers const *pnum, size_t idx);
 
+/**
+ * Oblicza, ile jest nietrywialnych numerów o długości len składających się ze znaków w *set.
+ * Funkcja oblicza liczbę nietrywialnych numerów długości len zawierających tylko cyfry,
+ * które znajdują się w napisie set. Jeśli wskaźnik pf ma wartość NULL, set ma wartość NULL, set jest pusty,
+ * set nie zawiera żadnej cyfry lub parametr len jest równy zeru, wynikiem jest zero.
+ * Obliczenia należy wykonywać modulo dwa do potęgi liczba bitów reprezentacji typu size_t.
+ * Napis set może zawierać dowolne znaki.
+ * @param pf wskaźnik na strukturę przechowującą ciąg napisów;
+ * @param set wskaźnik na zbiór liter
+ * @param len długość szukanych słów
+ * @return liczba nietrywialnych słów składających się z liter z napisu @p set o długości @p len. Zero dla nieprawidłowych parametrów.
+ */
+size_t phfwdNonTrivialCount(struct PhoneForward *pf, char const *set, size_t len);
+
 #endif /* __PHONE_FORWARD_H__ */

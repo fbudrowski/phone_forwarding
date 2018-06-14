@@ -8,7 +8,7 @@
 #include "arrayList.h"
 
 
-const size_t DIGIT_COUNT = 10;
+const size_t DIGIT_COUNT = 12;
 
 
 /**
@@ -45,7 +45,7 @@ bool verifyNumber(char const * number){
     return false;
   }
   while (*number > 0){
-    if (*number < '0' || '9' < *number){
+    if (*number < '0' || (int) ('0' + DIGIT_COUNT - 1)< *number){
       return false;
     }
     number++;
@@ -92,7 +92,7 @@ void phfwdDelete(PhoneForward const * pf){
 /**
  * Zwraca liczbę określoną cyfrą @p c
  * @param c - cyfra
- * @return wartość c w zakresie [0, 9];
+ * @return wartość c w zakresie [0, DIGIT_COUNT-1];
  */
 size_t charToDig(char const c){
   return (size_t)(c - '0');
@@ -170,7 +170,7 @@ PhoneForward* getVertexFromPrefixPassively (PhoneForward *pf, char const *prefix
   if (prefix == NULL || *prefix == '\0'){
     return pf;
   }
-  if (*prefix < '0' || '9' < *prefix){
+  if (*prefix < '0' || (int) ('0' + DIGIT_COUNT - 1) < *prefix){
     return NULL;
   }
   if (pf == NULL || pf->forwards == NULL || pf->forwards[charToDig(*prefix)] == NULL) {
@@ -192,7 +192,7 @@ PhoneForward* getVertexFromPrefixAggressively(PhoneForward *pf, char const *pref
   if (prefix == NULL || *prefix == '\0') {
     return pf;
   }
-  if (*prefix < '0' || '9' < *prefix){
+  if (*prefix < '0' || (int) ('0' + DIGIT_COUNT - 1) < *prefix){
     return NULL;
   }
   if (pf->forwards == NULL){
@@ -463,5 +463,58 @@ struct PhoneNumbers const * phfwdReverse(struct PhoneForward * pf, char const *n
 
   return answer;
 
+}
+
+size_t nonTrivialCount(struct PhoneForward *pf, char const *set, size_t len){
+  if (len == 0){
+    return 0;
+  }
+  size_t setlen = strlen(set);
+  if (pf->reverseRedirs->phNumCount > 0){
+    size_t ans = 1;
+    for (size_t i = 1; i <= len; i++){
+      ans *= setlen;
+    }
+    return ans;
+  }
+  size_t ans = 0;
+  for (size_t i = 0; i < setlen; i++){
+    char letter = set[i];
+    size_t letterValue = (size_t)(letter - '0');
+    if (pf->forwards == NULL || pf->forwards[letterValue] == NULL){
+      return 0;
+    }
+    ans += nonTrivialCount(pf->forwards[letterValue], set, len - 1);
+  }
+  return ans;
+}
+
+size_t phfwdNonTrivialCount(struct PhoneForward *pf, char const *set, size_t len){
+  if (pf == NULL || set == NULL || strlen(set) == 0 || len == 0){
+    return 0;
+  }
+  size_t setlen = strlen(set);
+  char* set2 = malloc(setlen * sizeof(char));
+  if (set2 == NULL){
+    return 0;
+  }
+  size_t set2len = 0;
+  for (size_t i = 0; i < setlen; i++){
+    if (set[i] < '0' && (int)('0' + DIGIT_COUNT - 1) < set[i]){
+      continue;
+    }
+    bool okay = true;
+    for (size_t j = 0; j < set2len; j++){
+      if (set[i] == set2[j]){
+        okay = false;
+      }
+    }
+    if (okay){
+      set2[set2len] = set[i];
+      set2len++;
+    }
+  }
+  free(set2);
+  return nonTrivialCount(pf, set2, len);
 }
 

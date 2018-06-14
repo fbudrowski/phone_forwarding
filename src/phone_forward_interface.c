@@ -9,7 +9,6 @@
 #include "arrayList.h"
 //#define DEBUG
 
-
 /**
  * Stała wskazująca na błąd typu EOF
  */
@@ -19,6 +18,15 @@ const size_t EOF_MARK = 991232114;
  * Stała wskazująca na uruchomienie programu w celu weryfikacji wejścia dla celów skryptu.
  */
 const size_t VERIFICATION_PROGRAM = 143214123;
+
+
+bool isdigit12(int x){
+  return '0' <= x && x <= '0' + 12 - 1;
+}
+
+bool isalnum12(int x){
+  return isalpha(x) || isdigit12(x);
+}
 
 /**
  * Struktura trzymająca modyfikowalnego i przedłużalnego stringa.
@@ -167,7 +175,7 @@ size_t readNumber(VarLenText ** vlt0, char * oldChar, size_t * charIndex){
       return status;
     }
   }
-  if (!isdigit(*oldChar)){
+  if (!isdigit12(*oldChar)){
     return *charIndex;
   }
   VarLenText * vlt = newVarLenText(*oldChar);
@@ -176,7 +184,7 @@ size_t readNumber(VarLenText ** vlt0, char * oldChar, size_t * charIndex){
     char a = (char)getchar();
     (*charIndex)++;
 
-    if (!isdigit(a)){
+    if (!isdigit12(a)){
       *oldChar = a;
       return 0;
     }
@@ -200,7 +208,7 @@ size_t readIdentifier(VarLenText ** vlt0, char * oldChar, size_t * charIndex){
   for (size_t i = 1; true; i++){
     char a = (char)getchar();
     (*charIndex)++;
-    if (a == '$' || !isalnum(a)){
+    if (a == '$' || !isalnum12(a)){
       *oldChar = a;
       return 0;
     }
@@ -351,7 +359,7 @@ size_t readNEWDELInstruction(ForwardInformation *information, char *oldChar){
     }
     let0 = *oldChar;
     size_t status = 0;
-    if (isdigit(let0) && vlt->text[0] == 'D'){
+    if (isdigit12(let0) && vlt->text[0] == 'D'){
       status = readNumber(&vlt2, oldChar, &information->charIndex);
     }
     else if (isalpha(let0)){
@@ -387,7 +395,7 @@ size_t readNEWDELInstruction(ForwardInformation *information, char *oldChar){
         return EOF_MARK + 1;
       }
     }
-    else if (isdigit(let0)){
+    else if (isdigit12(let0)){
 #ifdef DEBUG
       printf("Removing redirections of %s\n", identifier);
 #endif
@@ -540,10 +548,11 @@ size_t readNumberInstruction(ForwardInformation * information, char * oldChar){
  * @param oldChar wskaźnik na ostatni wczytany znak
  * @return status wczytywania: 0 jeżeli udało się wczytać znaki, numer znaku przy błędzie, EOFmark przy EOF..
  */
-size_t readQuestionMarkInstruction(ForwardInformation * information, char * oldChar){
+size_t readQuestionAtMarkInstruction(ForwardInformation *information, char *oldChar){
   if (information->programStatus == VERIFICATION_PROGRAM){
     return EOF_MARK;
   }
+  char sign0 = *oldChar;
   size_t operatorIndex = information->charIndex;
   *oldChar = (char)getchar();
   information->charIndex++;
@@ -566,19 +575,26 @@ size_t readQuestionMarkInstruction(ForwardInformation * information, char * oldC
   printf("Querying reverses to %s (%zu)\n", vlt->text, operatorIndex);
 #endif
   if (information->currentForward == NULL){
-    fprintf(stderr, "ERROR ? %zu\n", operatorIndex);
+    fprintf(stderr, "ERROR %c %zu\n", sign0, operatorIndex);
     free(vlt->text);
     free(vlt);
     return EOF_MARK + 1;
   }
   else{
-    PhoneNumbers const * numbers = phfwdReverse(information->currentForward, vlt->text);
-    for(size_t i = 0; phnumGet(numbers, i) != NULL; i++){
-      printf("%s\n", phnumGet(numbers, i));
-    }
-    //printf("\n");
+    if (sign0 == '?'){
+      PhoneNumbers const * numbers = phfwdReverse(information->currentForward, vlt->text);
+      for(size_t i = 0; phnumGet(numbers, i) != NULL; i++){
+        printf("%s\n", phnumGet(numbers, i));
+      }
+      //printf("\n");
 
-    phnumDelete(numbers);
+      phnumDelete(numbers);
+    }
+    else{
+      size_t len = 12 < vlt->textSize ? vlt->textSize - 12 : 0;
+      size_t answer = phfwdNonTrivialCount(information->currentForward, vlt->text, len);
+      printf("%zu\n", answer);
+    }
   }
   free(vlt->text);
   free(vlt);
@@ -608,11 +624,11 @@ size_t readInstruction(ForwardInformation * information, char* oldChar){
   if (isalpha(*oldChar)){
     return readNEWDELInstruction(information, oldChar);
   }
-  else if (isdigit(*oldChar)){
+  else if (isdigit12(*oldChar)){
     return readNumberInstruction(information, oldChar);
   }
-  else if ((*oldChar) == '?'){
-    return readQuestionMarkInstruction(information, oldChar);
+  else if ((*oldChar) == '?' || (*oldChar) == '@'){
+    return readQuestionAtMarkInstruction(information, oldChar);
   }
   else if ((*oldChar) == '$'){
     return readComment(oldChar, &information->charIndex);
