@@ -1,4 +1,4 @@
-**This project is from Spring 2018!**
+**Please keep in mind that this project is from Spring 2018.**
 
 ## Phone forwarding
 
