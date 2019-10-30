@@ -56,9 +56,9 @@ There are multiple operations:
 
 Symbols might be separated with whitespace characters or not (if it doesn't lead to ambiguity). Language might contain comments, which start with a sequence `$$`.
 
-In case of syntax errors, a message `ERROR n` is output, where `n` is a number of the first non-interpretable byte. If a program ends unexpectadly, `ERROR EOF` goes to output.
+In case of syntax errors, a message `ERROR n` is sent to output, where `n` is a number of the first non-interpretable byte. If a program ends unexpectadly, `ERROR EOF` goes to output.
 
-In case of execution errors, `ERROR operator n` is output, where `operator` is an operator name and `n` is a position of that operator. If no base is set, any operation on numbers is treated as wrong.
+In case of execution errors, `ERROR operator n` is sent output, where `operator` is an operator name and `n` is a position of that operator. If no base is set, any operation on numbers is considered wrong.
 
 My solution to that part is located in the commit `d4bae3c222d6731d8b5cd02b713431ad17b716ea`
 
